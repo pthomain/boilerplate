@@ -3,7 +3,6 @@ package uk.co.glass_software.android.boilerplate.log
 
 import android.util.Log
 import uk.co.glass_software.android.boilerplate.log.Logger.LogException
-import java.util.*
 
 class SimpleLogger(private val isDebug: Boolean,
                    private val printer: Printer) : Logger {
@@ -11,7 +10,6 @@ class SimpleLogger(private val isDebug: Boolean,
     companion object {
         private const val MESSAGE_LENGTH_LIMIT = 4000
         private const val SHOW_DEBUG_STACK_TRACE = false
-        private const val STACK_TRACE_DESCRIPTION_LENGTH = 4
         private val packageName = SimpleLogger::class.java.`package`!!.name
     }
 
@@ -21,10 +19,12 @@ class SimpleLogger(private val isDebug: Boolean,
                 prefix: String) : this(
             isDebug,
             object : Printer {
+                override fun canPrint(message: String) = !message.contains(packageName)
+
                 override fun print(priority: Int,
                                    tag: String?,
                                    message: String) {
-                    if (!message.contains(packageName))
+                    if (canPrint(message))
                         Log.println(priority, decorate(tag), message)
                 }
 
@@ -123,27 +123,27 @@ class SimpleLogger(private val isDebug: Boolean,
                     forceOutput: Boolean) {
         if (isDebug || forceOutput) {
             try {
-                var file: String? = null
-                var line: Int? = null
                 try {
                     throw Exception()
                 } catch (e: Exception) {
-                    val stackTrace = e.stackTrace
+                    var index = 0
 
-                    val index = STACK_TRACE_DESCRIPTION_LENGTH
-
-                    if (stackTrace.size > index) {
-                        line = stackTrace[index].lineNumber
-                        file = stackTrace[index].fileName
+                    for (x in 0..e.stackTrace.size) {
+                        if (printer.canPrint(message)) {
+                            index = x
+                            break
+                        }
                     }
-                }
 
-                logInternal(
-                        priority,
-                        tag,
-                        " ($file:$line) $message",
-                        throwable
-                )
+                    Pair(e.stackTrace[index].lineNumber, e.stackTrace[index].fileName)
+                }.let { pair ->
+                    logInternal(
+                            priority,
+                            tag,
+                            " (${pair.first}:${pair.second}) $message",
+                            throwable
+                    )
+                }
             } catch (e: Exception) {
                 val logException = LogException(
                         "An error occurred trying to log a previous error",
