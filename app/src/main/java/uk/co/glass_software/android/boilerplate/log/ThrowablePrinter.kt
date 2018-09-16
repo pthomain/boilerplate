@@ -1,6 +1,5 @@
 package uk.co.glass_software.android.boilerplate.log
 
-import android.os.Build
 import android.os.Build.VERSION.SDK_INT
 import android.os.Build.VERSION_CODES.KITKAT
 import android.util.Log
