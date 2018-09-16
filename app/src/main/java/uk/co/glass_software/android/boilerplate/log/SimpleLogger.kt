@@ -8,7 +8,7 @@ class SimpleLogger(private val isDebug: Boolean,
                    private val printer: Printer) : Logger {
 
     companion object {
-        private const val PREFIX = "GSLOG"
+        private const val PREFIX = "BLOG"
         private const val MESSAGE_LENGTH_LIMIT = 4000
         private const val FORCE_STACK_TRACE_OUTPUT = false
         private const val STACK_TRACE_DESCRIPTION_LENGTH = 4
