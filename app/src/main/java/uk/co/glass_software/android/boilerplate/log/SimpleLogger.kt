@@ -19,7 +19,7 @@ class SimpleLogger(private val isDebug: Boolean,
                 prefix: String) : this(
             isDebug,
             object : Printer {
-                override fun canPrint(message: String) = !message.contains(packageName)
+                override fun canPrint(className: String) = !className.contains(packageName)
 
                 override fun print(priority: Int,
                                    tag: String?,
@@ -129,7 +129,7 @@ class SimpleLogger(private val isDebug: Boolean,
                     var index = 0
 
                     for (x in 0..e.stackTrace.size) {
-                        if (printer.canPrint(message)) {
+                        if (printer.canPrint(e.stackTrace[index].className)) {
                             index = x
                             break
                         }
