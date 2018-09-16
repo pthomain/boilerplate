@@ -1,5 +1,6 @@
 package uk.co.glass_software.android.boilerplate.log
 
+import android.annotation.TargetApi
 import android.os.Build.VERSION.SDK_INT
 import android.os.Build.VERSION_CODES.KITKAT
 import android.util.Log
@@ -58,6 +59,7 @@ internal class ThrowablePrinter(private val printer: Printer) {
         }
     }
 
+    @TargetApi(KITKAT)
     private fun printEnclosedStackTrace(throwable: Throwable,
                                         tag: String,
                                         enclosingTrace: Array<StackTraceElement>,

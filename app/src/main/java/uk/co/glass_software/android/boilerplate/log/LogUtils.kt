@@ -1,6 +1,6 @@
 package uk.co.glass_software.android.boilerplate.log
 
-lateinit var logger: Logger
+import uk.co.glass_software.android.boilerplate.Boilerplate.logger
 
 fun Throwable?.log() {
     log(this?.message)

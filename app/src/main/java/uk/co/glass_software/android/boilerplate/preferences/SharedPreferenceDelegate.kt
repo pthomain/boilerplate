@@ -14,8 +14,7 @@ class SharedPrefsDelegate<T>(private val prefs: Prefs,
     companion object {
         fun getPrefs(prefsFile: String) = Prefs.with(prefsFile)
 
-        inline infix fun <reified T> with(valueKey: String):
-                SharedPrefsDelegate<T> =
+        inline infix fun <reified T> with(valueKey: String): SharedPrefsDelegate<T> =
                 with(valueKey, valueKey)
 
         inline fun <reified T> with(prefsFile: String,
@@ -39,13 +38,14 @@ class SharedPrefsDelegate<T>(private val prefs: Prefs,
 
     @Synchronized
     @Suppress("UNCHECKED_CAST")
-    override operator fun getValue(thisRef: Any, property: KProperty<*>): T? =
+    override operator fun getValue(thisRef: Any,
+                                   property: KProperty<*>): T? =
             prefs.file.all[valueKey]  as? T?
 
     @Synchronized
     @SuppressLint("CommitPrefEdits")
-    override operator fun setValue(thisRef: Any, property:
-    KProperty<*>, value: T?) {
+    override operator fun setValue(thisRef: Any,
+                                   property: KProperty<*>, value: T?) {
         prefs.file.edit().apply {
             when (value) {
                 is String -> putString(valueKey, value)

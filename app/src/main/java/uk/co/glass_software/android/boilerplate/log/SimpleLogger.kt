@@ -8,16 +8,13 @@ class SimpleLogger(private val isDebug: Boolean,
                    private val printer: Printer) : Logger {
 
     companion object {
-        private const val PREFIX = "BLOG"
         private const val MESSAGE_LENGTH_LIMIT = 4000
-        private const val FORCE_STACK_TRACE_OUTPUT = false
+        private const val SHOW_DEBUG_STACK_TRACE = false
         private const val STACK_TRACE_DESCRIPTION_LENGTH = 4
-        private val packageName = SimpleLogger::class.java.`package`.name
+        private val packageName = SimpleLogger::class.java.`package`!!.name
     }
 
     private val throwablePrinter = ThrowablePrinter(printer)
-
-    constructor(isDebug: Boolean) : this(isDebug, PREFIX)
 
     constructor(isDebug: Boolean,
                 prefix: String) : this(
@@ -44,11 +41,7 @@ class SimpleLogger(private val isDebug: Boolean,
 
     override fun d(caller: Any,
                    message: String) {
-        if (FORCE_STACK_TRACE_OUTPUT) {
-            e(caller, message)
-        } else {
-            d(caller, message, false)
-        }
+        d(caller, message, SHOW_DEBUG_STACK_TRACE)
     }
 
     fun d(caller: Any,
