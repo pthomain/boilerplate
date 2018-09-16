@@ -14,7 +14,7 @@ internal class ThrowablePrinter(private val printer: Printer) {
         private const val SUPPRESSED_CAPTION = "Suppressed: "
     }
 
-    internal fun printStackTrace(tag: String,
+    internal fun printStackTrace(tag: String?,
                                  throwable: Throwable) {
         val dejaVu = Collections.newSetFromMap(IdentityHashMap<Throwable, Boolean>())
         dejaVu.add(throwable)
@@ -61,7 +61,7 @@ internal class ThrowablePrinter(private val printer: Printer) {
 
     @TargetApi(KITKAT)
     private fun printEnclosedStackTrace(throwable: Throwable,
-                                        tag: String,
+                                        tag: String?,
                                         enclosingTrace: Array<StackTraceElement>,
                                         caption: String,
                                         prefix: String,

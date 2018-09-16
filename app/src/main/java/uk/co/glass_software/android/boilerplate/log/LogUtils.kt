@@ -7,13 +7,13 @@ fun Throwable?.log() {
 }
 
 infix fun Throwable?.log(message: String?) {
-    this?.let { logger.e(this, this, message) }
+    this?.let { logger.e(it, message) }
 }
 
 fun String?.logDebug() {
-    this?.let { logger.d(this, this) }
+    this?.let { logger.d(it) }
 }
 
 fun String?.logError() {
-    this?.let { logger.e(this, this) }
+    this?.let { logger.e(it) }
 }

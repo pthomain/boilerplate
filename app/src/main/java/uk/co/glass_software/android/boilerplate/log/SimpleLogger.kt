@@ -2,6 +2,7 @@ package uk.co.glass_software.android.boilerplate.log
 
 
 import android.util.Log
+import uk.co.glass_software.android.boilerplate.log.Logger.LogException
 import java.util.*
 
 class SimpleLogger(private val isDebug: Boolean,
@@ -21,87 +22,36 @@ class SimpleLogger(private val isDebug: Boolean,
             isDebug,
             object : Printer {
                 override fun print(priority: Int,
-                                   tag: String,
+                                   tag: String?,
                                    message: String) {
                     if (!message.contains(packageName))
                         Log.println(priority, decorate(tag), message)
                 }
 
-                private fun decorate(tag: String): String = "[$prefix:$tag]"
+                private fun decorate(tag: String?) = tag?.let { "[$prefix:$tag]" } ?: "[$prefix]"
             }
     )
 
-    private fun getTag(caller: Any): String {
-        if (caller is String) {
-            return caller
-        }
-        val callerClass = caller as? Class<*> ?: caller.javaClass
-        return callerClass.name
-    }
-
-    override fun d(caller: Any,
+    override fun d(tag: String,
                    message: String) {
-        d(caller, message, SHOW_DEBUG_STACK_TRACE)
-    }
-
-    fun d(caller: Any,
-          message: String,
-          forceOutput: Boolean) {
-        d(
-                getTag(caller),
-                message,
-                forceOutput
-        )
-    }
-
-    override fun e(caller: Any,
-                   t: Throwable,
-                   message: String?) {
-        e(
-                getTag(caller),
-                t,
-                message,
-                true
-        )
-    }
-
-    fun e(caller: Any,
-          t: Throwable,
-          message: String?,
-          forceOutput: Boolean) {
-        e(
-                getTag(caller),
-                t,
-                message,
-                forceOutput
-        )
-    }
-
-    override fun e(caller: Any,
-                   message: String) {
-        try {
-            throw Logger.LogException(message)
-        } catch (e: Logger.LogException) {
-            e(getTag(caller), e, message)
-        }
-    }
-
-    private fun e(tag: String,
-                  t: Throwable,
-                  message: String?,
-                  forceOutput: Boolean = true) {
-        log(
-                Log.ERROR,
+        debug(
                 tag,
-                message ?: t.message ?: "",
-                t,
-                forceOutput
+                message,
+                SHOW_DEBUG_STACK_TRACE
         )
     }
 
-    private fun d(tag: String,
-                  message: String,
-                  forceOutput: Boolean) {
+    override fun d(message: String) {
+        debug(
+                null,
+                message,
+                SHOW_DEBUG_STACK_TRACE
+        )
+    }
+
+    private fun debug(tag: String?,
+                      message: String,
+                      forceOutput: Boolean) {
         log(
                 Log.DEBUG,
                 tag,
@@ -111,8 +61,63 @@ class SimpleLogger(private val isDebug: Boolean,
         )
     }
 
+    override fun e(tag: String,
+                   t: Throwable,
+                   message: String?) {
+        error(
+                tag,
+                t,
+                message,
+                true
+        )
+    }
+
+    override fun e(t: Throwable,
+                   message: String?) {
+        error(
+                null,
+                t,
+                message,
+                true
+        )
+    }
+
+    override fun e(tag: String,
+                   message: String) {
+        try {
+            throw LogException(message)
+        } catch (e: LogException) {
+            e(
+                    tag,
+                    e,
+                    message
+            )
+        }
+    }
+
+    override fun e(message: String) {
+        try {
+            throw LogException(message)
+        } catch (e: LogException) {
+            e(e, message)
+        }
+    }
+
+    private fun error(tag: String?,
+                      t: Throwable,
+                      message: String?,
+                      forceOutput: Boolean) {
+        log(
+                Log.ERROR,
+                tag,
+                message ?: t.message ?: "",
+                t,
+                forceOutput
+        )
+    }
+
     private fun log(priority: Int,
-                    tag: String,
+                    tag: String?,
                     message: String,
                     throwable: Throwable?,
                     forceOutput: Boolean) {
@@ -139,14 +144,18 @@ class SimpleLogger(private val isDebug: Boolean,
                         " ($file:$line) $message",
                         throwable
                 )
-            } catch (e: MissingFormatArgumentException) {
-                e(SimpleLogger::class.java, e, e.message ?: "")
+            } catch (e: Exception) {
+                val logException = LogException(
+                        "An error occurred trying to log a previous error",
+                        e
+                )
+                e(logException)
             }
         }
     }
 
     private fun logInternal(priority: Int,
-                            tag: String,
+                            tag: String?,
                             message: String,
                             throwable: Throwable?) {
         if (message.length > MESSAGE_LENGTH_LIMIT) {
