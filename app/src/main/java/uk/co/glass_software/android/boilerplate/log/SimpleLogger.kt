@@ -129,7 +129,7 @@ class SimpleLogger(private val isDebug: Boolean,
                     var index = 0
 
                     for (x in 0..e.stackTrace.size) {
-                        if (printer.canPrint(e.stackTrace[index].className)) {
+                        if (printer.canPrint(e.stackTrace[x].className)) {
                             index = x
                             break
                         }
