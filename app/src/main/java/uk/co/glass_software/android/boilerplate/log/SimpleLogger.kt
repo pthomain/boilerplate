@@ -135,7 +135,7 @@ class SimpleLogger(private val isDebug: Boolean,
                         }
                     }
 
-                    Pair(e.stackTrace[index].lineNumber, e.stackTrace[index].fileName)
+                    Pair(e.stackTrace[index].fileName, e.stackTrace[index].lineNumber)
                 }.let { pair ->
                     logInternal(
                             priority,
