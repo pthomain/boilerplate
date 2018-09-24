@@ -1,4 +1,4 @@
-package uk.co.glass_software.android.boilerplate.log
+package uk.co.glass_software.android.boilerplate.utils.log
 
 interface Logger {
 

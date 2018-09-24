@@ -2,9 +2,9 @@ package uk.co.glass_software.android.boilerplate
 
 import android.annotation.SuppressLint
 import android.content.Context
-import uk.co.glass_software.android.boilerplate.log.Logger
-import uk.co.glass_software.android.boilerplate.log.SimpleLogger
-import uk.co.glass_software.android.boilerplate.string.capitaliseFirst
+import uk.co.glass_software.android.boilerplate.utils.log.Logger
+import uk.co.glass_software.android.boilerplate.utils.log.SimpleLogger
+import uk.co.glass_software.android.boilerplate.utils.string.capitaliseFirst
 
 @SuppressLint("StaticFieldLeak") //Application context cannot leak
 object Boilerplate {

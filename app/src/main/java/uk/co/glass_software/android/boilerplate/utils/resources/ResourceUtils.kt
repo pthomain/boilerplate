@@ -1,4 +1,4 @@
-package uk.co.glass_software.android.boilerplate.resources
+package uk.co.glass_software.android.boilerplate.utils.resources
 
 import android.content.Context
 

@@ -1,4 +1,4 @@
-package uk.co.glass_software.android.boilerplate.preferences
+package uk.co.glass_software.android.boilerplate.utils.preferences
 
 import android.annotation.SuppressLint
 import android.content.Context.MODE_PRIVATE

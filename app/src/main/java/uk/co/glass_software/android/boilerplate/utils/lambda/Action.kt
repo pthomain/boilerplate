@@ -1,4 +1,4 @@
-package uk.co.glass_software.android.boilerplate.lambda
+package uk.co.glass_software.android.boilerplate.utils.lambda
 
 sealed class Action(private val action: () -> Unit) : () -> Unit {
 

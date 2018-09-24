@@ -1,8 +1,8 @@
-package uk.co.glass_software.android.boilerplate.log
+package uk.co.glass_software.android.boilerplate.utils.log
 
 
 import android.util.Log
-import uk.co.glass_software.android.boilerplate.log.Logger.LogException
+import uk.co.glass_software.android.boilerplate.utils.log.Logger.LogException
 
 class SimpleLogger(private val isDebug: Boolean,
                    private val printer: Printer) : Logger {

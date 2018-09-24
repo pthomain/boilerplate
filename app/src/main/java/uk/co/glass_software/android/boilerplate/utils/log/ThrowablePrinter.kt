@@ -1,4 +1,4 @@
-package uk.co.glass_software.android.boilerplate.log
+package uk.co.glass_software.android.boilerplate.utils.log
 
 import android.annotation.TargetApi
 import android.os.Build.VERSION.SDK_INT

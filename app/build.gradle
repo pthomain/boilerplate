@@ -67,11 +67,16 @@ artifacts {
 
 dependencies {
 
-    implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk8:$kotlinVersion"
-    implementation "org.jetbrains.kotlin:kotlin-reflect:$kotlinVersion"
+    implementation appDependencies.appcompatV7
 
-    implementation"io.reactivex.rxjava2:rxjava:$rxJavaVersion"
-    implementation"io.reactivex.rxjava2:rxkotlin:$rxKotlinVersion"
-    implementation"io.reactivex.rxjava2:rxandroid:$rxAndroidVersion"
+    implementation appDependencies.kotlinJdk8
+    implementation appDependencies.kotlinReflect
 
+    implementation appDependencies.rxJava
+    implementation appDependencies.rxKotlin
+
+    implementation appDependencies.dagger
+    implementation appDependencies.daggerAndroid
+    kapt appDependencies.daggerCompiler
+    kapt appDependencies.daggerAndroidProcessor
 }

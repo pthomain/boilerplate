@@ -1,6 +1,6 @@
-package uk.co.glass_software.android.boilerplate.io
+package uk.co.glass_software.android.boilerplate.utils.io
 
-import uk.co.glass_software.android.boilerplate.log.log
+import uk.co.glass_software.android.boilerplate.utils.log.log
 import java.io.Closeable
 
 inline fun <T : Closeable?, R> T.useAndLogError(block: (T) -> R) =

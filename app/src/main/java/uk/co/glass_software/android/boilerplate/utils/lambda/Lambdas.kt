@@ -1,4 +1,4 @@
-package uk.co.glass_software.android.boilerplate.lambda
+package uk.co.glass_software.android.boilerplate.utils.lambda
 
 interface Callback1<T1> : (T1) -> Unit {
     fun provide(first: T1)
