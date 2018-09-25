@@ -55,6 +55,5 @@ ext {
             daggerAndroid         : "com.google.dagger:dagger-android:$daggerVersion",
             daggerCompiler        : "com.google.dagger:dagger-compiler:$daggerVersion",
             daggerAndroidProcessor: "com.google.dagger:dagger-android-processor:$daggerVersion"
-
     ]
 }

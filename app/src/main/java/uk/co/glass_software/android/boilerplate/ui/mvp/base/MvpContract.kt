@@ -1,16 +1,56 @@
 package uk.co.glass_software.android.boilerplate.ui.mvp.base
 
+import android.os.Bundle
+import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleObserver
 import androidx.lifecycle.LifecycleOwner
-
+import androidx.lifecycle.OnLifecycleEvent
+import uk.co.glass_software.android.boilerplate.utils.rx.RxAutoSubscriber
 
 interface MvpContract {
 
-    interface Presenter<P : Presenter<P, V>, V : View<V, P>> : LifecycleObserver {
-        fun getView(): V
+    interface Presenter<
+            V : MvpView<V, P, C>,
+            P : Presenter<V, P, C>,
+            C : ViewComponent<V, P, C>> : LifecycleObserver, RxAutoSubscriber {
+
+        val mvpView: V
+
     }
 
-    interface View<V : View<V, P>, P : Presenter<P, V>> : LifecycleOwner {
+    interface MvpView<
+            V : MvpView<V, P, C>,
+            P : Presenter<V, P, C>,
+            C : ViewComponent<V, P, C>> : LifecycleOwner {
+
+        @Suppress("UNCHECKED_CAST")
+        fun getMvpView(): V = this as V
+
         fun getPresenter(): P
+        fun initialiseComponent(): C
+        fun onComponentReady(component: C)
+
+        fun onCreateComponent(savedInstanceState: Bundle?) {
+            onCreateMvpView(savedInstanceState)
+            onComponentReady(initialiseComponent())
+            lifecycle.addObserver(getPresenter())
+            lifecycle.addObserver(object : LifecycleObserver {
+                @OnLifecycleEvent(Lifecycle.Event.ON_DESTROY)
+                fun onDestroyMvpView() {
+                    lifecycle.removeObserver(getPresenter())
+                }
+            })
+        }
+
+        //If needed do some initialisation here using Bundle
+        fun onCreateMvpView(savedInstanceState: Bundle?) = Unit
     }
+
+    interface ViewComponent<
+            V : MvpContract.MvpView<V, P, C>,
+            P : MvpContract.Presenter<V, P, C>,
+            C : ViewComponent<V, P, C>> {
+        val presenter: P
+    }
+
 }

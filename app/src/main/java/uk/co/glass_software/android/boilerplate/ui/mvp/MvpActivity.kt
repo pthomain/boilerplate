@@ -2,29 +2,27 @@ package uk.co.glass_software.android.boilerplate.ui.mvp
 
 import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
-import uk.co.glass_software.android.boilerplate.ui.mvp.base.MvpComponent
 import uk.co.glass_software.android.boilerplate.ui.mvp.base.MvpContract
 import javax.inject.Inject
 
-abstract class MvpActivity<V : MvpContract.View<V, P>, P : MvpContract.Presenter<P, V>, C : MvpComponent<V, P>>
-    : AppCompatActivity(), MvpContract.View<V, P> {
+abstract class MvpActivity<
+        V : MvpContract.MvpView<V, P, C>,
+        P : MvpContract.Presenter<V, P, C>,
+        C : MvpContract.ViewComponent<V, P, C>>
+    : AppCompatActivity(), MvpContract.MvpView<V, P, C> {
 
-    @Inject
-    lateinit var p: P
+    private lateinit var component: C
 
-    final override fun getPresenter(): P = p
-    abstract fun getComponent(): C
-    abstract fun getMvpView(): V
+    final override fun getPresenter(): P = component.presenter
 
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        p = getComponent().presenter
-        lifecycle.addObserver(p)
+    final override fun onComponentReady(component: C) {
+        this.component = component
     }
 
-    override fun onDestroy() {
-        super.onDestroy()
-        lifecycle.removeObserver(p)
+    //Final: override onCreateMvpView() instead
+    final override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        onCreateComponent(savedInstanceState)
     }
 
 }

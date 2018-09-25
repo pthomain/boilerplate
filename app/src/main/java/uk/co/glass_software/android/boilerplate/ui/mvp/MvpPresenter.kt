@@ -1,10 +1,13 @@
 package uk.co.glass_software.android.boilerplate.ui.mvp
 
+import androidx.lifecycle.LifecycleObserver
+import io.reactivex.disposables.CompositeDisposable
 import uk.co.glass_software.android.boilerplate.ui.mvp.base.MvpContract
 
-abstract class MvpPresenter<P : MvpContract.Presenter<P, V>, V : MvpContract.View<V, P>>(private val v: V)
-    : MvpContract.Presenter<P, V> {
-
-    final override fun getView(): V = v
-
-}
+abstract class MvpPresenter<
+        V : MvpContract.MvpView<V, P, C>,
+        P : MvpContract.Presenter<V, P, C>,
+        C : MvpContract.ViewComponent<V, P, C>>(
+        override var mvpView: V,
+        override var subscriptions: CompositeDisposable = CompositeDisposable()
+) : MvpContract.Presenter<V, P, C>, LifecycleObserver
