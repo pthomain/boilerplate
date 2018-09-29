@@ -18,7 +18,7 @@ abstract class MvpFragment<
         this.component = component
     }
 
-    final override fun getPresenter(): P = component.presenter
+    final override fun getPresenter(): P = component.presenter()
 
     //Final: override onCreateMvpView() instead
     final override fun onAttach(context: Context?) {

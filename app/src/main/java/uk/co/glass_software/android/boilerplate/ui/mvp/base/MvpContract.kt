@@ -50,7 +50,7 @@ interface MvpContract {
             V : MvpContract.MvpView<V, P, C>,
             P : MvpContract.Presenter<V, P, C>,
             C : ViewComponent<V, P, C>> {
-        val presenter: P
+        fun presenter(): P
     }
 
 }

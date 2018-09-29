@@ -13,7 +13,7 @@ abstract class MvpActivity<
 
     private lateinit var component: C
 
-    final override fun getPresenter(): P = component.presenter
+    final override fun getPresenter(): P = component.presenter()
 
     final override fun onComponentReady(component: C) {
         this.component = component
