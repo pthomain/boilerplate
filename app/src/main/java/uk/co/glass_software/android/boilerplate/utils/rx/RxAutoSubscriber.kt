@@ -11,7 +11,7 @@ interface RxAutoSubscriber {
 
     var subscriptions: CompositeDisposable
 
-    private fun Disposable.autoAdd(): Disposable = apply { subscriptions.add(this) }
+    fun Disposable.autoAdd(): Disposable = apply { subscriptions.add(this) }
 
     //Observable
 

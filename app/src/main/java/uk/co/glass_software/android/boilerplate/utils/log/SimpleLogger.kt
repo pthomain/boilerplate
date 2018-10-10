@@ -5,12 +5,20 @@ import android.util.Log
 import uk.co.glass_software.android.boilerplate.utils.log.Logger.LogException
 
 class SimpleLogger(private val isDebug: Boolean,
-                   private val printer: Printer) : Logger {
+                   private val printer: Printer,
+                   private val listener: Listener? = null,
+                   private var showDebugStackTrace: Boolean = false) : Logger {
 
     companion object {
         private const val MESSAGE_LENGTH_LIMIT = 4000
-        private const val SHOW_DEBUG_STACK_TRACE = false
         private val packageName = SimpleLogger::class.java.`package`!!.name
+    }
+
+    interface Listener {
+        fun log(priority: Int,
+                tag: String?,
+                message: String,
+                throwable: Throwable?)
     }
 
     private val throwablePrinter = ThrowablePrinter(printer)
@@ -37,7 +45,7 @@ class SimpleLogger(private val isDebug: Boolean,
         debug(
                 tag,
                 message,
-                SHOW_DEBUG_STACK_TRACE
+                showDebugStackTrace
         )
     }
 
@@ -45,7 +53,7 @@ class SimpleLogger(private val isDebug: Boolean,
         debug(
                 null,
                 message,
-                SHOW_DEBUG_STACK_TRACE
+                showDebugStackTrace
         )
     }
 
@@ -137,10 +145,17 @@ class SimpleLogger(private val isDebug: Boolean,
 
                     Pair(e.stackTrace[index].fileName, e.stackTrace[index].lineNumber)
                 }.let { pair ->
+                    val output = " (${pair.first}:${pair.second}) $message"
+                    listener?.log(
+                            priority,
+                            tag,
+                            output,
+                            throwable
+                    )
                     logInternal(
                             priority,
                             tag,
-                            " (${pair.first}:${pair.second}) $message",
+                            output,
                             throwable
                     )
                 }

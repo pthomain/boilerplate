@@ -74,7 +74,6 @@ class Prefs private constructor(private val prefsFile: String) {
     private fun getPrefs(prefsFile: String) =
             Boilerplate.context.getSharedPreferences(prefsFile, MODE_PRIVATE)
 
-
     infix fun <T> open(valueKey: String) =
             SharedPrefsDelegate<T>(this, valueKey)
 
