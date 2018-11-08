@@ -75,6 +75,7 @@ dependencies {
     implementation appDependencies.rxJava
     implementation appDependencies.rxKotlin
     implementation appDependencies.rxAndroid
+    implementation appDependencies.reactivenetwork
 
     implementation appDependencies.dagger
     implementation appDependencies.daggerAndroid

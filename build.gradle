@@ -32,8 +32,9 @@ ext {
     minSdkVersion = 16
     targetSdkVersion = 28
     buildToolsVersion = '28.0.2'
-
     supportLibraryVersion = '1.0.0-beta01'
+
+    reactivenetworkVersion = '3.0.0'
 
     rxJavaVersion = '2.2.0'
     rxKotlinVersion = '2.3.0'
@@ -50,6 +51,8 @@ ext {
             rxJava                : "io.reactivex.rxjava2:rxjava:$rxJavaVersion",
             rxKotlin              : "io.reactivex.rxjava2:rxkotlin:$rxKotlinVersion",
             rxAndroid             : "io.reactivex.rxjava2:rxandroid:$rxAndroidVersion",
+
+            reactivenetwork       : "com.github.pwittchen:reactivenetwork-rx2:$reactivenetworkVersion",
 
             dagger                : "com.google.dagger:dagger:$daggerVersion",
             daggerAndroid         : "com.google.dagger:dagger-android:$daggerVersion",
