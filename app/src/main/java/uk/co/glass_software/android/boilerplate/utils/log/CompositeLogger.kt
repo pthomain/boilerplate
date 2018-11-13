@@ -2,30 +2,18 @@ package uk.co.glass_software.android.boilerplate.utils.log
 
 class CompositeLogger(private vararg val loggers: Logger) : Logger {
 
-    override fun e(tag: String,
+    override fun e(tagOrCaller: Any,
                    t: Throwable,
                    message: String?) {
-        loggers.forEach { it.e(tag, t, message) }
+        loggers.forEach { it.e(tagOrCaller, t, message) }
     }
 
-    override fun e(t: Throwable, message: String?) {
-        loggers.forEach { it.e(t, message) }
+    override fun e(tagOrCaller: Any, message: String) {
+        loggers.forEach { it.e(tagOrCaller, message) }
     }
 
-    override fun e(tag: String, message: String) {
-        loggers.forEach { it.e(tag, message) }
-    }
-
-    override fun e(message: String) {
-        loggers.forEach { it.e(message) }
-    }
-
-    override fun d(tag: String, message: String) {
-        loggers.forEach { it.d(tag, message) }
-    }
-
-    override fun d(message: String) {
-        loggers.forEach { it.d(message) }
+    override fun d(tagOrCaller: Any, message: String) {
+        loggers.forEach { it.d(tagOrCaller, message) }
     }
 
 }

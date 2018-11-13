@@ -2,18 +2,15 @@ package uk.co.glass_software.android.boilerplate.utils.log
 
 import uk.co.glass_software.android.boilerplate.Boilerplate.logger
 
-fun Throwable?.log() {
-    log(this?.message)
+fun Throwable?.log(tagOrCaller: Any,
+                   message: String? = this?.message) {
+    this?.let { logger.e(tagOrCaller, it, message) }
 }
 
-infix fun Throwable?.log(message: String?) {
-    this?.let { logger.e(it, message) }
+fun String?.logDebug(tagOrCaller: Any) {
+    this?.let { logger.d(tagOrCaller, it) }
 }
 
-fun String?.logDebug() {
-    this?.let { logger.d(it) }
-}
-
-fun String?.logError() {
-    this?.let { logger.e(it) }
+fun String?.logError(tagOrCaller: Any) {
+    this?.let { logger.e(tagOrCaller, it) }
 }

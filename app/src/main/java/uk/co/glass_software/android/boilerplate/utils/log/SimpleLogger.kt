@@ -40,92 +40,74 @@ class SimpleLogger(private val isDebug: Boolean,
             }
     )
 
-    override fun d(tag: String,
+    override fun d(tagOrCaller: Any,
                    message: String) {
         debug(
-                tag,
+                tagOrCaller,
                 message,
                 showDebugStackTrace
         )
     }
 
-    override fun d(message: String) {
-        debug(
-                null,
-                message,
-                showDebugStackTrace
-        )
-    }
-
-    private fun debug(tag: String?,
-                      message: String,
-                      forceOutput: Boolean) {
-        log(
-                Log.DEBUG,
-                tag,
-                message,
-                null,
-                forceOutput
-        )
-    }
-
-    override fun e(tag: String,
-                   t: Throwable,
-                   message: String?) {
-        error(
-                tag,
-                t,
-                message,
-                true
-        )
-    }
-
-    override fun e(t: Throwable,
-                   message: String?) {
-        error(
-                null,
-                t,
-                message,
-                true
-        )
-    }
-
-    override fun e(tag: String,
+    override fun e(tagOrCaller: Any,
                    message: String) {
         try {
             throw LogException(message)
         } catch (e: LogException) {
             e(
-                    tag,
+                    tagOrCaller,
                     e,
                     message
             )
         }
     }
 
-    override fun e(message: String) {
-        try {
-            throw LogException(message)
-        } catch (e: LogException) {
-            e(e, message)
-        }
+    override fun e(tagOrCaller: Any,
+                   t: Throwable,
+                   message: String?) {
+        error(
+                tagOrCaller,
+                t,
+                message,
+                true
+        )
     }
 
-    private fun error(tag: String?,
+    private fun debug(tagOrCaller: Any,
+                      message: String,
+                      forceOutput: Boolean) {
+        log(
+                Log.DEBUG,
+                getTag(tagOrCaller),
+                message,
+                null,
+                forceOutput
+        )
+    }
+
+    private fun error(tagOrCaller: Any,
                       t: Throwable,
                       message: String?,
                       forceOutput: Boolean) {
         log(
                 Log.ERROR,
-                tag,
+                getTag(tagOrCaller),
                 message ?: t.message ?: "",
                 t,
                 forceOutput
         )
     }
 
+    private fun getTag(caller: Any): String {
+        if (caller is String) {
+            return caller
+        }
+        val callerClass = caller as? Class<*> ?: caller.javaClass
+        return callerClass.name
+    }
+
     private fun log(priority: Int,
-                    tag: String?,
+                    tag: String,
                     message: String,
                     throwable: Throwable?,
                     forceOutput: Boolean) {
@@ -160,17 +142,19 @@ class SimpleLogger(private val isDebug: Boolean,
                     )
                 }
             } catch (e: Exception) {
-                val logException = LogException(
-                        "An error occurred trying to log a previous error",
-                        e
+                e(
+                        tag,
+                        LogException(
+                                "An error occurred trying to log a previous error",
+                                e
+                        )
                 )
-                e(logException)
             }
         }
     }
 
     private fun logInternal(priority: Int,
-                            tag: String?,
+                            tag: String,
                             message: String,
                             throwable: Throwable?) {
         if (message.length > MESSAGE_LENGTH_LIMIT) {

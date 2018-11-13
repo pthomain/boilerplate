@@ -2,22 +2,15 @@ package uk.co.glass_software.android.boilerplate.utils.log
 
 interface Logger {
 
-    fun e(tag: String,
+    fun e(tagOrCaller: Any,
           t: Throwable,
           message: String? = t.message)
 
-    fun e(t: Throwable,
-          message: String? = t.message)
-
-    fun e(tag: String,
+    fun e(tagOrCaller: Any,
           message: String)
 
-    fun e(message: String)
-
-    fun d(tag: String,
+    fun d(tagOrCaller: Any,
           message: String)
-
-    fun d(message: String)
 
     class LogException internal constructor(detailMessage: String,
                                             cause: Throwable? = null)
