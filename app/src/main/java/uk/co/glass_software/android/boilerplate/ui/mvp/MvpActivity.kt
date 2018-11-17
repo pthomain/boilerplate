@@ -3,7 +3,6 @@ package uk.co.glass_software.android.boilerplate.ui.mvp
 import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
 import uk.co.glass_software.android.boilerplate.ui.mvp.base.MvpContract
-import javax.inject.Inject
 
 abstract class MvpActivity<
         V : MvpContract.MvpView<V, P, C>,
@@ -25,4 +24,5 @@ abstract class MvpActivity<
         onCreateComponent(savedInstanceState)
     }
 
+    override fun onMvpViewCreated() = Unit
 }

@@ -1,6 +1,7 @@
 package uk.co.glass_software.android.boilerplate.ui.mvp.base
 
 import android.os.Bundle
+import androidx.annotation.CallSuper
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleObserver
 import androidx.lifecycle.LifecycleOwner
@@ -30,6 +31,7 @@ interface MvpContract {
         fun initialiseComponent(): C
         fun onComponentReady(component: C)
 
+        @CallSuper
         fun onCreateComponent(savedInstanceState: Bundle?) {
             onCreateMvpView(savedInstanceState)
             onComponentReady(initialiseComponent())
@@ -40,10 +42,12 @@ interface MvpContract {
                     lifecycle.removeObserver(getPresenter())
                 }
             })
+            onMvpViewCreated()
         }
 
         //If needed do some initialisation here using Bundle
         fun onCreateMvpView(savedInstanceState: Bundle?) = Unit
+        fun onMvpViewCreated() = Unit
     }
 
     interface ViewComponent<
