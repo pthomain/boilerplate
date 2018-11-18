@@ -2,7 +2,7 @@ package uk.co.glass_software.android.boilerplate.ui.mvp.base
 
 import android.os.Bundle
 import androidx.annotation.CallSuper
-import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.Lifecycle.Event.ON_PAUSE
 import androidx.lifecycle.LifecycleObserver
 import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.OnLifecycleEvent
@@ -35,18 +35,23 @@ interface MvpContract {
         fun onCreateComponent(savedInstanceState: Bundle?) {
             onCreateMvpView(savedInstanceState)
             onComponentReady(initialiseComponent())
+            lifecycle.addObserver(internalLifecycleObserver())
             lifecycle.addObserver(getPresenter())
-            lifecycle.addObserver(object : LifecycleObserver {
-                @OnLifecycleEvent(Lifecycle.Event.ON_DESTROY)
-                fun onDestroyMvpView() {
-                    lifecycle.removeObserver(getPresenter())
-                }
-            })
             onMvpViewCreated()
+        }
+
+        private fun internalLifecycleObserver() = object : LifecycleObserver {
+            @CallSuper
+            @OnLifecycleEvent(ON_PAUSE)
+            fun onPause() {
+                getPresenter().subscriptions.clear()
+            }
         }
 
         //If needed do some initialisation here using Bundle
         fun onCreateMvpView(savedInstanceState: Bundle?) = Unit
+
+        //Callback after the injection is done
         fun onMvpViewCreated() = Unit
     }
 

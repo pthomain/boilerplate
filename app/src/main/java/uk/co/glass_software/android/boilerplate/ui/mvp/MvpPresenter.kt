@@ -10,4 +10,4 @@ abstract class MvpPresenter<
         C : MvpContract.ViewComponent<V, P, C>>(
         override var mvpView: V,
         override var subscriptions: CompositeDisposable = CompositeDisposable()
-) : MvpContract.Presenter<V, P, C>, LifecycleObserver
+) : MvpContract.Presenter<V, P, C>, LifecycleObserver 
