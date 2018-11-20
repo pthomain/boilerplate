@@ -23,31 +23,31 @@ private val networkConnectivityObservable = ReactiveNetwork.observeNetworkConnec
 const val TAG = "RxScheduling"
 const val MAX_NETWORK_RECONNECT_ATTEMPTS = 3
 
-fun <T> Observable<T>.ioUi(waitForNetwork: Boolean = true) =
+fun <T> Observable<T>.ioUi(waitForNetwork: Boolean = false) =
         subscribeOnIo(waitForNetwork, MainThread)
 
-fun <T> Single<T>.ioUi(waitForNetwork: Boolean = true) =
+fun <T> Single<T>.ioUi(waitForNetwork: Boolean = false) =
         subscribeOnIo(waitForNetwork, MainThread)
 
-fun <T> Maybe<T>.ioUi(waitForNetwork: Boolean = true) =
+fun <T> Maybe<T>.ioUi(waitForNetwork: Boolean = false) =
         subscribeOnIo(waitForNetwork, MainThread)
 
-fun Completable.ioUi(waitForNetwork: Boolean = true) =
+fun Completable.ioUi(waitForNetwork: Boolean = false) =
         subscribeOnIo(waitForNetwork, MainThread)
 
-fun <T> Observable<T>.subscribeOnIo(waitForNetwork: Boolean = true,
+fun <T> Observable<T>.subscribeOnIo(waitForNetwork: Boolean = false,
                                     observeOn: On = Trampoline) =
         schedule(Io, observeOn, waitForNetwork)
 
-fun <T> Single<T>.subscribeOnIo(waitForNetwork: Boolean = true,
+fun <T> Single<T>.subscribeOnIo(waitForNetwork: Boolean = false,
                                 observeOn: On = Trampoline) =
         schedule(Io, observeOn, waitForNetwork)
 
-fun <T> Maybe<T>.subscribeOnIo(waitForNetwork: Boolean = true,
+fun <T> Maybe<T>.subscribeOnIo(waitForNetwork: Boolean = false,
                                observeOn: On = Trampoline) =
         schedule(Io, observeOn, waitForNetwork)
 
-fun Completable.subscribeOnIo(waitForNetwork: Boolean = true,
+fun Completable.subscribeOnIo(waitForNetwork: Boolean = false,
                               observeOn: On = Trampoline) = schedule(Io, observeOn, waitForNetwork)
 
 fun <T> Observable<T>.schedule(subscribeOn: On = Io,
