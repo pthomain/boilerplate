@@ -125,6 +125,17 @@ fun getNetworkAvailableSingle(checkConnectivity: Boolean = true): Single<RxIgnor
     }.mapIgnore().doOnSuccess { log("Network is back") }
 }
 
+fun observeNetworkAvailability(checkConnectivity: Boolean = true) =
+        networkConnectivityObservable
+                .map { it.state() == CONNECTED }
+                .compose { upstream ->
+                    if (checkConnectivity)
+                        upstream
+                                .filter { it }
+                                .flatMap { ReactiveNetwork.observeInternetConnectivity(internetObservingStrategy) }
+                    else upstream
+                }
+
 private fun <T> waitForNetworkAndRetry(attempt: Int,
                                        maxAttempts: Int,
                                        upstream: Observable<T>,
