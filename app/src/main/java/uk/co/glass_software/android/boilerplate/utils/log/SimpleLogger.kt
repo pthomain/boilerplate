@@ -60,8 +60,8 @@ class SimpleLogger(private val isDebug: Boolean,
 
                 private fun trimTagToMaxLength(tag: String): String =
                         if (tag.length + prefixLength > TAG_LENGTH_LIMIT) {
-                            if (tag.contains("."))
-                                trimTagToMaxLength(tag.substring(tag.indexOf(".")))
+                            if (tag.contains(".") && tag.indexOf(".") < tag.length)
+                                trimTagToMaxLength(tag.substring(tag.indexOf(".") + 1))
                             else
                                 tag.substring(tag.length - TAG_LENGTH_LIMIT, tag.length)
                         } else tag
