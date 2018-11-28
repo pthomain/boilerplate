@@ -7,7 +7,8 @@ import android.util.Log
 import java.util.*
 
 //Copied and modified from java.util
-internal class ThrowablePrinter(private val printer: Printer) {
+internal class ThrowablePrinter(private val printer: Printer,
+                                private val packageName: String) {
 
     companion object {
         private const val CAUSE_CAPTION = "Caused by: "
@@ -22,6 +23,7 @@ internal class ThrowablePrinter(private val printer: Printer) {
         printer.print(
                 Log.ERROR,
                 tag,
+                packageName,
                 "${throwable::class.qualifiedName}: ${throwable.message}"
         )
 
@@ -30,6 +32,7 @@ internal class ThrowablePrinter(private val printer: Printer) {
             printer.print(
                     Log.ERROR,
                     tag,
+                    packageName,
                     "\tat $traceElement"
             )
         }
@@ -70,6 +73,7 @@ internal class ThrowablePrinter(private val printer: Printer) {
             printer.print(
                     Log.ERROR,
                     tag,
+                    packageName,
                     "\t[CIRCULAR REFERENCE:$throwable]"
             )
         } else {
@@ -88,6 +92,7 @@ internal class ThrowablePrinter(private val printer: Printer) {
             printer.print(
                     Log.ERROR,
                     tag,
+                    packageName,
                     prefix + caption + this
             )
 
@@ -95,6 +100,7 @@ internal class ThrowablePrinter(private val printer: Printer) {
                 printer.print(
                         Log.ERROR,
                         tag,
+                        packageName,
                         "$prefix\tat ${trace[i]}"
                 )
             }
@@ -103,6 +109,7 @@ internal class ThrowablePrinter(private val printer: Printer) {
                 printer.print(
                         Log.ERROR,
                         tag,
+                        packageName,
                         "$prefix\t... $framesInCommon more"
                 )
             }

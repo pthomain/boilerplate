@@ -6,5 +6,6 @@ interface Printer {
 
     fun print(priority: Int,
               tag: String?,
+              targetClassName: String,
               message: String)
 }

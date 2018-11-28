@@ -28,7 +28,13 @@ object Boilerplate {
              logPrefix: String? = null) {
         if (!isInitialised) {
             this.context = context.applicationContext
-            logger = SimpleLogger(isDebug, getLogPrefix(logPrefix))
+
+            logger = SimpleLogger(
+                    isDebug,
+                    getLogPrefix(logPrefix),
+                    context.packageName
+            )
+
             observeNetwork()
             isInitialised = true
         }
