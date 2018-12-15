@@ -260,7 +260,8 @@ class OptionalValue<T> : Optional<T> {
          * `Option.empty()`. There is no guarantee that it is a singleton.
          * Instead, use [.isPresent].
         </T> */
-        fun <T> empty() = OptionalValue<T>()
+        fun <T> empty() =
+                OptionalValue<T>() as Optional<T>
 
         /**
          * Returns an `Optional` with the specified present non-null value.
@@ -270,7 +271,8 @@ class OptionalValue<T> : Optional<T> {
          * @return an `Optional` with the value present
          * @throws NullPointerException if value is null
         </T> */
-        fun <T> of(value: T) = OptionalValue(value)
+        fun <T> of(value: T) =
+                OptionalValue(value) as Optional<T>
 
         /**
          * Returns an `Optional` describing the specified value, if non-null,
@@ -281,7 +283,8 @@ class OptionalValue<T> : Optional<T> {
          * @return an `Optional` with a present value if the specified value
          * is non-null, otherwise an empty `Optional`
         </T> */
-        fun <T> ofNullable(value: T?) = if (value == null) empty() else of(value)
+        fun <T> ofNullable(value: T?) =
+                if (value == null) empty() else of(value)
 
         /**
          * Checks that the specified object reference is not {@code null}. This
@@ -298,7 +301,8 @@ class OptionalValue<T> : Optional<T> {
          * @return {@code obj} if not {@code null}
          * @throws NullPointerException if {@code obj} is {@code null}
          */
-        fun <T> requireNonNull(obj: T?) = obj ?: throw NullPointerException()
+        fun <T> requireNonNull(obj: T?) =
+                obj ?: throw NullPointerException()
     }
 
 }
