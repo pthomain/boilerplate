@@ -11,7 +11,9 @@ object RxIgnore {
 }
 
 fun <T> Observable<T>.mapIgnore() = map { RxIgnore }
-
 fun <T> Single<T>.mapIgnore() = map { RxIgnore }
-
 fun <T> Maybe<T>.mapIgnore() = map { RxIgnore }
+
+abstract class Ignorable : Observable<RxIgnore>()
+abstract class SingleIgnorable : Single<RxIgnore>()
+abstract class MaybeIgnorable : Maybe<RxIgnore>()
