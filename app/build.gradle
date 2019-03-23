@@ -1,6 +1,7 @@
 apply plugin: 'com.android.library'
 apply plugin: 'kotlin-android'
 apply plugin: 'kotlin-android-extensions'
+apply plugin: "kotlin-kapt"
 group = 'com.github.pthomain'
 
 android {
@@ -79,6 +80,7 @@ dependencies {
 
     implementation appDependencies.dagger
     implementation appDependencies.daggerAndroid
+
     kapt appDependencies.daggerCompiler
     kapt appDependencies.daggerAndroidProcessor
 }
