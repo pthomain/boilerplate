@@ -1,33 +1,21 @@
 package uk.co.glass_software.android.boilerplate.utils.resources
 
-import android.content.Context
-
 import android.app.Activity
-import android.app.Fragment
+import android.content.Context
 import android.view.View
 import android.view.ViewGroup
 import androidx.annotation.IdRes
-import uk.co.glass_software.android.boilerplate.Boilerplate
+import androidx.fragment.app.Fragment
 import kotlin.properties.ReadWriteProperty
 import kotlin.reflect.KProperty
 
-fun Int.string() = string(Boilerplate.context)
-
 infix fun Int.string(context: Context) = context.resources.getString(this)
-
-fun Int.int() = int(Boilerplate.context)
 
 infix fun Int.int(context: Context) = context.resources.getInteger(this)
 
-fun Int.boolean() = boolean(Boilerplate.context)
-
 infix fun Int.boolean(context: Context) = context.resources.getBoolean(this)
 
-fun Int.pixel() = pixel(Boilerplate.context)
-
 infix fun Int.pixel(context: Context) = context.resources.getDimensionPixelSize(this)
-
-fun Int.raw() = raw(Boilerplate.context)
 
 infix fun Int.raw(context: Context) = context.resources.openRawResource(this)
 

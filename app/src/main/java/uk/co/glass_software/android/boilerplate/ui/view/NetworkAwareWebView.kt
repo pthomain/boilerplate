@@ -7,7 +7,6 @@ import android.webkit.WebView
 import androidx.annotation.CallSuper
 import io.reactivex.disposables.Disposables
 import uk.co.glass_software.android.boilerplate.Boilerplate
-import uk.co.glass_software.android.boilerplate.Boilerplate.logger
 import uk.co.glass_software.android.boilerplate.utils.lambda.Action
 import uk.co.glass_software.android.boilerplate.utils.rx.ioUi
 import uk.co.glass_software.android.boilerplate.utils.rx.observeNetworkAvailability
@@ -19,6 +18,9 @@ open class NetworkAwareWebView @kotlin.jvm.JvmOverloads constructor(context: Con
 
     private var pendingAction: Action? = null
     private var subscription = Disposables.disposed()
+
+    //Set this value before using this WebView
+    lateinit var boilerplate: Boilerplate
 
     @CallSuper
     override fun loadUrl(url: String?,
@@ -83,20 +85,22 @@ open class NetworkAwareWebView @kotlin.jvm.JvmOverloads constructor(context: Con
     private fun waitForNetwork(action: () -> Unit) {
         pendingAction = Action.From(action)
 
-        if (Boilerplate.networkAvailable) {
-            setNetworkAvailable(true)
-            pendingAction?.invoke()
-            pendingAction = null
-        } else {
-            setNetworkAvailable(false)
-            subscription = observeNetworkAvailability()
-                    .filter { it }
-                    .firstOrError()
-                    .ioUi(false)
-                    .subscribe(
-                            { executePendingAction() },
-                            { logger.e(this, it, "Could not load URL") }
-                    )
+        with(boilerplate) {
+            if (networkAvailable) {
+                setNetworkAvailable(true)
+                pendingAction?.invoke()
+                pendingAction = null
+            } else {
+                setNetworkAvailable(false)
+                subscription = observeNetworkAvailability()
+                        .filter { it }
+                        .firstOrError()
+                        .ioUi()
+                        .subscribe(
+                                { executePendingAction() },
+                                { logger.e(this, it, "Could not load URL") }
+                        )
+            }
         }
     }
 

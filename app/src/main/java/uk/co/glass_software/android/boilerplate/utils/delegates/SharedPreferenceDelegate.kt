@@ -1,8 +1,8 @@
 package uk.co.glass_software.android.boilerplate.utils.delegates
 
 import android.annotation.SuppressLint
+import android.content.Context
 import android.content.Context.MODE_PRIVATE
-import uk.co.glass_software.android.boilerplate.Boilerplate
 import kotlin.properties.ReadWriteProperty
 import kotlin.reflect.KProperty
 
@@ -12,28 +12,12 @@ class SharedPrefsDelegate<T>(private val prefs: Prefs,
     : ReadWriteProperty<Any, T?> {
 
     companion object {
-        fun getPrefs(prefsFile: String) = Prefs.with(prefsFile)
+        inline infix fun <reified T> Prefs.with(valueKey: String): SharedPrefsDelegate<T> =
+                SharedPrefsDelegate(this, valueKey)
 
-        inline infix fun <reified T> with(valueKey: String): SharedPrefsDelegate<T> =
-                with(valueKey, valueKey)
-
-        inline fun <reified T> with(prefsFile: String,
-                                    valueKey: String): SharedPrefsDelegate<T> =
-                with(getPrefs(prefsFile), valueKey)
-
-        inline fun <reified T> with(prefs: Prefs,
-                                    valueKey: String): SharedPrefsDelegate<T> =
-                SharedPrefsDelegate(prefs, valueKey)
-
-        fun clear(valueKey: String) {
-            clear(getPrefs(valueKey), valueKey)
+        fun Prefs.clear(valueKey: String) {
+            file.edit().remove(valueKey).commit()
         }
-
-        fun clear(prefs: Prefs,
-                  valueKey: String) {
-            prefs.file.edit().remove(valueKey).commit()
-        }
-
     }
 
     @Synchronized
@@ -60,19 +44,22 @@ class SharedPrefsDelegate<T>(private val prefs: Prefs,
     }
 
     fun clear() {
-        clear(prefs, valueKey)
+        prefs.clear(valueKey)
     }
 }
 
-class Prefs private constructor(private val prefsFile: String) {
+class Prefs private constructor(
+        private val prefsFile: String,
+        private val context: Context
+) {
     companion object {
-        infix fun with(prefsFile: String) = Prefs(prefsFile)
+        infix fun Context.prefs(prefsFile: String) = Prefs(prefsFile, this)
     }
 
-    val file by lazy { getPrefs(prefsFile)!! }
+    val file by lazy { getPrefs(prefsFile, context)!! }
 
-    private fun getPrefs(prefsFile: String) =
-            Boilerplate.context.getSharedPreferences(prefsFile, MODE_PRIVATE)
+    private fun getPrefs(prefsFile: String, context: Context) =
+            context.getSharedPreferences(prefsFile, MODE_PRIVATE)
 
     infix fun <T> open(valueKey: String) =
             SharedPrefsDelegate<T>(this, valueKey)

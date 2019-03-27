@@ -7,37 +7,24 @@ import uk.co.glass_software.android.boilerplate.utils.log.SimpleLogger
 import uk.co.glass_software.android.boilerplate.utils.rx.observeNetworkAvailability
 import uk.co.glass_software.android.boilerplate.utils.string.capitaliseFirst
 
-@SuppressLint("StaticFieldLeak") //Application context cannot leak
-object Boilerplate {
+class Boilerplate(context: Context,
+                  val isDebug: Boolean,
+                  logPrefix: String? = null) {
 
-    var isInitialised = false
-        private set
-
-    lateinit var context: Context
-        private set
-
-    lateinit var logger: Logger
-        private set
+    val context = context.applicationContext
+    val logger: Logger
 
     var networkAvailable: Boolean = false
         private set
 
-    @Synchronized
-    fun init(context: Context,
-             isDebug: Boolean,
-             logPrefix: String? = null) {
-        if (!isInitialised) {
-            this.context = context.applicationContext
+    init {
+        logger = SimpleLogger(
+                isDebug,
+                getLogPrefix(logPrefix),
+                context.packageName
+        )
 
-            logger = SimpleLogger(
-                    isDebug,
-                    getLogPrefix(logPrefix),
-                    context.packageName
-            )
-
-            observeNetwork()
-            isInitialised = true
-        }
+        observeNetwork()
     }
 
     @SuppressLint("CheckResult")
