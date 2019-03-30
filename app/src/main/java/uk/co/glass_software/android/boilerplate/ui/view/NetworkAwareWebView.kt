@@ -1,13 +1,14 @@
 package uk.co.glass_software.android.boilerplate.ui.view
 
+import android.annotation.SuppressLint
 import android.content.Context
 import android.os.Parcelable
 import android.util.AttributeSet
 import android.webkit.WebView
 import androidx.annotation.CallSuper
 import io.reactivex.disposables.Disposables
-import uk.co.glass_software.android.boilerplate.Boilerplate
 import uk.co.glass_software.android.boilerplate.utils.lambda.Action
+import uk.co.glass_software.android.boilerplate.utils.log.Logger
 import uk.co.glass_software.android.boilerplate.utils.rx.ioUi
 import uk.co.glass_software.android.boilerplate.utils.rx.observeNetworkAvailability
 
@@ -19,8 +20,12 @@ open class NetworkAwareWebView @kotlin.jvm.JvmOverloads constructor(context: Con
     private var pendingAction: Action? = null
     private var subscription = Disposables.disposed()
 
-    //Set this value before using this WebView
-    lateinit var boilerplate: Boilerplate
+    private var isConnected: Boolean = true
+    var logger: Logger? = null
+
+    init {
+        observeNetwork()
+    }
 
     @CallSuper
     override fun loadUrl(url: String?,
@@ -85,23 +90,29 @@ open class NetworkAwareWebView @kotlin.jvm.JvmOverloads constructor(context: Con
     private fun waitForNetwork(action: () -> Unit) {
         pendingAction = Action.From(action)
 
-        with(boilerplate) {
-            if (networkAvailable) {
-                setNetworkAvailable(true)
-                pendingAction?.invoke()
-                pendingAction = null
-            } else {
-                setNetworkAvailable(false)
-                subscription = observeNetworkAvailability()
-                        .filter { it }
-                        .firstOrError()
-                        .ioUi()
-                        .subscribe(
-                                { executePendingAction() },
-                                { logger.e(this, it, "Could not load URL") }
-                        )
-            }
+        if (isConnected) {
+            setNetworkAvailable(true)
+            pendingAction?.invoke()
+            pendingAction = null
+        } else {
+            setNetworkAvailable(false)
+            subscription = context.observeNetworkAvailability()
+                    .filter { it }
+                    .firstOrError()
+                    .ioUi()
+                    .subscribe(
+                            { executePendingAction() },
+                            { logger?.e(this, it, "Could not load URL") }
+                    )
         }
+    }
+
+    @SuppressLint("CheckResult")
+    private fun observeNetwork() {
+        context.observeNetworkAvailability().subscribe(
+                { isConnected = it },
+                { logger?.e(this, it, "An error occurred while observing the network connectivity") }
+        )
     }
 
     private fun executePendingAction() {

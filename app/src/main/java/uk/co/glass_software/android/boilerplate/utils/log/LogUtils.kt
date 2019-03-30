@@ -1,14 +1,19 @@
 package uk.co.glass_software.android.boilerplate.utils.log
 
-import uk.co.glass_software.android.boilerplate.Boilerplate
+import android.content.Context
+import uk.co.glass_software.android.boilerplate.utils.string.capitaliseFirst
 
-fun Boilerplate.log(tagOrCaller: Any,
-                    message: String) {
-    logger.d(tagOrCaller, message)
-}
+fun Context.simpleLogger(isDebug: Boolean,
+                         logPrefix: String? = null) = SimpleLogger(
+        isDebug,
+        getLogPrefix(logPrefix),
+        packageName
+)
 
-fun Boilerplate.log(tagOrCaller: Any,
-                    throwable: Throwable,
-                    message: String? = throwable.message) {
-    logger.e(tagOrCaller, throwable, message)
-}
+private fun Context.getLogPrefix(logPrefix: String?) =
+        logPrefix ?: getPackageNameForLogging().capitaliseFirst().plus("Log")
+
+private fun Context.getPackageNameForLogging() =
+        packageName.let {
+            it.substring(it.lastIndexOf(".") + 1)
+        }

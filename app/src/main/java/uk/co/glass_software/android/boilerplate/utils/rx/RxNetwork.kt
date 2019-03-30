@@ -1,83 +1,110 @@
 package uk.co.glass_software.android.boilerplate.utils.rx
 
+import android.content.Context
 import android.net.NetworkInfo
 import com.github.pwittchen.reactivenetwork.library.rx2.ReactiveNetwork
 import com.github.pwittchen.reactivenetwork.library.rx2.internet.observing.InternetObservingSettings
 import com.github.pwittchen.reactivenetwork.library.rx2.internet.observing.strategy.WalledGardenInternetObservingStrategy
-import io.reactivex.Completable
-import io.reactivex.Maybe
-import io.reactivex.Observable
-import io.reactivex.Single
-import uk.co.glass_software.android.boilerplate.Boilerplate
+import io.reactivex.*
+import uk.co.glass_software.android.boilerplate.utils.log.Logger
 import java.io.IOException
 import java.util.concurrent.TimeoutException
 
 
 fun <T> Observable<T>.waitForNetwork(
-        boilerplate: Boilerplate,
+        context: Context,
+        logger: Logger? = null,
         maxAttempts: Int = MAX_NETWORK_RECONNECT_ATTEMPTS
 ) = compose {
-    boilerplate.waitForNetworkAndRetry(
+    context.waitForNetworkAndRetry(
             0,
             maxAttempts,
-            it
+            it,
+            false,
+            logger
     )
 }!!
 
 fun <T> Single<T>.waitForNetwork(
-        boilerplate: Boilerplate,
+        context: Context,
+        logger: Logger? = null,
         maxAttempts: Int = MAX_NETWORK_RECONNECT_ATTEMPTS
 ) = compose {
-    boilerplate.waitForNetworkAndRetry(
+    context.waitForNetworkAndRetry(
             0,
             maxAttempts,
-            it.toObservable()
+            it.observable(),
+            false,
+            logger
     ).firstOrError()
 }!!
 
 fun <T> Maybe<T>.waitForNetwork(
-        boilerplate: Boilerplate,
+        context: Context,
+        logger: Logger? = null,
         maxAttempts: Int = MAX_NETWORK_RECONNECT_ATTEMPTS
 ) = compose {
-    boilerplate.waitForNetworkAndRetry(
+    context.waitForNetworkAndRetry(
             0,
             maxAttempts,
-            it.toObservable()
+            it.observable(),
+            false,
+            logger
     ).firstElement()
 }!!
 
-fun Completable.waitForNetwork(
-        boilerplate: Boilerplate,
+fun <T> Flowable<T>.waitForNetwork(
+        context: Context,
+        logger: Logger? = null,
         maxAttempts: Int = MAX_NETWORK_RECONNECT_ATTEMPTS
 ) = compose {
-    boilerplate.waitForNetworkAndRetry(
+    context.waitForNetworkAndRetry(
             0,
             maxAttempts,
-            it.toObservable<RxIgnore>()
+            it.observable(),
+            false,
+            logger
+    ).firstOrError().toFlowable()
+}!!
+
+fun Completable.waitForNetwork(
+        context: Context,
+        logger: Logger? = null,
+        maxAttempts: Int = MAX_NETWORK_RECONNECT_ATTEMPTS
+) = compose {
+    context.waitForNetworkAndRetry(
+            0,
+            maxAttempts,
+            it.observable(),
+            false,
+            logger
     ).ignoreElements()
 }!!
 
-fun Boilerplate.getNetworkAvailableSingle(checkConnectivity: Boolean = true): Single<RxIgnore> {
+fun Context.getNetworkAvailableSingle(
+        checkConnectivity: Boolean = true,
+        logger: Logger? = null
+): Single<Unit> {
     val networkSingle = networkConnectivityObservable()
-            .doOnNext { if (it.state() != NetworkInfo.State.CONNECTED) logger.d(TAG, "Waiting for network...") }
+            .doOnNext { if (it.state() != NetworkInfo.State.CONNECTED) logger?.d(TAG, "Waiting for network...") }
             .filter { it.state() == NetworkInfo.State.CONNECTED }
             .firstOrError()
 
     return if (checkConnectivity) {
-        networkSingle.flatMap { _ ->
+        networkSingle.flatMap {
             ReactiveNetwork
                     .observeInternetConnectivity(internetObservingStrategy)
-                    .doOnNext { if (!it) logger.d(TAG, "Waiting for connectivity...") }
+                    .doOnNext { if (!it) logger?.d(TAG, "Waiting for connectivity...") }
                     .filter { it }
                     .firstOrError()
         }
     } else {
         networkSingle
-    }.mapIgnore().doOnSuccess { logger.d(TAG, "Network is back") }
+    }.ignore().doOnSuccess { logger?.d(TAG, "Network is back") }
 }
 
-fun Boilerplate.observeNetworkAvailability(checkConnectivity: Boolean = true) =
-        ReactiveNetwork.observeNetworkConnectivity(context)
+fun Context.observeNetworkAvailability(checkConnectivity: Boolean = true) =
+        ReactiveNetwork.observeNetworkConnectivity(this)
                 .map { it.state() == NetworkInfo.State.CONNECTED }
                 .compose { upstream ->
                     if (checkConnectivity)
@@ -87,45 +114,52 @@ fun Boilerplate.observeNetworkAvailability(checkConnectivity: Boolean = true) =
                     else upstream
                 }
 
-private fun <T> Boilerplate.waitForNetworkAndRetry(attempt: Int,
-                                                   maxAttempts: Int,
-                                                   upstream: Observable<T>,
-                                                   skipCheckAtStart: Boolean = false) =
+private fun <T> Context.waitForNetworkAndRetry(attempt: Int,
+                                               maxAttempts: Int,
+                                               upstream: Observable<T>,
+                                               skipCheckAtStart: Boolean,
+                                               logger: Logger?) =
         upstream.onErrorResumeNext { error: Throwable ->
             resumeNetworkOnError(
                     attempt + 1,
                     maxAttempts,
                     error,
-                    upstream
+                    upstream,
+                    skipCheckAtStart,
+                    logger
             )
         }.let { composed ->
             if (skipCheckAtStart && attempt == 0) composed //useful for cache to work when offline
             else getNetworkAvailableSingle().flatMapObservable { composed }
         }
 
-private fun Boilerplate.networkConnectivityObservable() =
-        ReactiveNetwork.observeNetworkConnectivity(context)
+private fun Context.networkConnectivityObservable() =
+        ReactiveNetwork.observeNetworkConnectivity(this)
 
 private fun isNetworkError(error: Throwable) =
         error is TimeoutException || error is IOException
 
-private fun <T> Boilerplate.resumeNetworkOnError(attempt: Int,
-                                                 maxAttempts: Int,
-                                                 error: Throwable,
-                                                 upstream: Observable<T>): Observable<T> {
+private fun <T> Context.resumeNetworkOnError(attempt: Int,
+                                             maxAttempts: Int,
+                                             error: Throwable,
+                                             upstream: Observable<T>,
+                                             skipCheckAtStart: Boolean,
+                                             logger: Logger?): Observable<T> {
     return if (attempt >= maxAttempts) {
-        logger.e(TAG, "Could not establish network connection after $attempt attempts")
+        logger?.e(TAG, "Could not establish network connection after $attempt attempts")
         Observable.error<T>(TooManyAttemptsException(maxAttempts, error))
     } else {
         if (isNetworkError(error)) {
-            logger.d(TAG, "Lost network connection, waiting for reconnection: attempt $attempt")
+            logger?.d(TAG, "Lost network connection, waiting for reconnection: attempt $attempt")
             waitForNetworkAndRetry(
                     attempt + 1,
                     maxAttempts,
-                    upstream
+                    upstream,
+                    skipCheckAtStart,
+                    logger
             )
         } else {
-            logger.e(TAG, error, "Caught a non-network error")
+            logger?.e(TAG, error, "Caught a non-network error")
             Observable.error<T>(error)
         }
     }
