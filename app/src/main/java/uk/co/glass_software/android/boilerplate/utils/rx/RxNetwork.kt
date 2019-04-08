@@ -2,49 +2,103 @@ package uk.co.glass_software.android.boilerplate.utils.rx
 
 import android.content.Context
 import android.net.NetworkInfo
+import android.net.NetworkInfo.State.*
 import com.github.pwittchen.reactivenetwork.library.rx2.ReactiveNetwork
 import com.github.pwittchen.reactivenetwork.library.rx2.internet.observing.InternetObservingSettings
 import com.github.pwittchen.reactivenetwork.library.rx2.internet.observing.strategy.WalledGardenInternetObservingStrategy
 import io.reactivex.*
+import uk.co.glass_software.android.boilerplate.HasContext
+import uk.co.glass_software.android.boilerplate.HasLogger
 import uk.co.glass_software.android.boilerplate.utils.log.Logger
 import java.io.IOException
 import java.util.concurrent.TimeoutException
 
+/**
+ * Observable waitForNetwork
+ */
 
 fun <T> Observable<T>.waitForNetwork(
         context: Context,
         logger: Logger? = null,
         maxAttempts: Int = MAX_NETWORK_RECONNECT_ATTEMPTS
 ) = compose {
-    context.waitForNetworkAndRetry(
+    context.applicationContext.waitForNetworkAndRetry(
             0,
             maxAttempts,
             it,
             false,
             logger
     )
-}!!
+}
+
+fun <T> Context.waitForNetworkObservable(
+        logger: Logger? = null,
+        maxAttempts: Int = MAX_NETWORK_RECONNECT_ATTEMPTS
+) = ObservableTransformer<T, T> { upstream ->
+    applicationContext.waitForNetworkAndRetry<T>(
+            0,
+            maxAttempts,
+            upstream,
+            false,
+            logger
+    )
+}
+
+fun <T> T.waitForNetworkObservable(maxAttempts: Int = MAX_NETWORK_RECONNECT_ATTEMPTS)
+        where T : HasLogger, T : HasContext =
+        context().applicationContext.waitForNetworkObservable<T>(
+                logger(),
+                maxAttempts
+        )
+
+/**
+ * Single waitForNetwork
+ */
 
 fun <T> Single<T>.waitForNetwork(
         context: Context,
         logger: Logger? = null,
         maxAttempts: Int = MAX_NETWORK_RECONNECT_ATTEMPTS
 ) = compose {
-    context.waitForNetworkAndRetry(
+    context.applicationContext.waitForNetworkAndRetry(
             0,
             maxAttempts,
             it.observable(),
             false,
             logger
     ).firstOrError()
-}!!
+}
+
+fun <T> Context.waitForNetworkSingle(
+        logger: Logger? = null,
+        maxAttempts: Int = MAX_NETWORK_RECONNECT_ATTEMPTS
+) = SingleTransformer<T, T> { upstream ->
+    applicationContext.waitForNetworkAndRetry<T>(
+            0,
+            maxAttempts,
+            upstream.toObservable(),
+            false,
+            logger
+    ).firstOrError()
+}
+
+fun <T> T.waitForNetworkSingle(maxAttempts: Int = MAX_NETWORK_RECONNECT_ATTEMPTS)
+        where T : HasLogger, T : HasContext =
+        context().applicationContext.waitForNetworkSingle<T>(
+                logger(),
+                maxAttempts
+        )
+
+/**
+ * Maybe waitForNetwork
+ */
 
 fun <T> Maybe<T>.waitForNetwork(
         context: Context,
         logger: Logger? = null,
         maxAttempts: Int = MAX_NETWORK_RECONNECT_ATTEMPTS
 ) = compose {
-    context.waitForNetworkAndRetry(
+    context.applicationContext.waitForNetworkAndRetry(
             0,
             maxAttempts,
             it.observable(),
@@ -53,12 +107,17 @@ fun <T> Maybe<T>.waitForNetwork(
     ).firstElement()
 }!!
 
+
+/**
+ * Flowable waitForNetwork
+ */
+
 fun <T> Flowable<T>.waitForNetwork(
         context: Context,
         logger: Logger? = null,
         maxAttempts: Int = MAX_NETWORK_RECONNECT_ATTEMPTS
 ) = compose {
-    context.waitForNetworkAndRetry(
+    context.applicationContext.waitForNetworkAndRetry(
             0,
             maxAttempts,
             it.observable(),
@@ -67,12 +126,16 @@ fun <T> Flowable<T>.waitForNetwork(
     ).firstOrError().toFlowable()
 }!!
 
+/**
+ * Completable waitForNetwork
+ */
+
 fun Completable.waitForNetwork(
         context: Context,
         logger: Logger? = null,
         maxAttempts: Int = MAX_NETWORK_RECONNECT_ATTEMPTS
 ) = compose {
-    context.waitForNetworkAndRetry(
+    context.applicationContext.waitForNetworkAndRetry(
             0,
             maxAttempts,
             it.observable(),
@@ -81,13 +144,18 @@ fun Completable.waitForNetwork(
     ).ignoreElements()
 }!!
 
+
+/**
+ * Network available Single
+ */
+
 fun Context.getNetworkAvailableSingle(
         checkConnectivity: Boolean = true,
         logger: Logger? = null
 ): Single<Unit> {
-    val networkSingle = networkConnectivityObservable()
-            .doOnNext { if (it.state() != NetworkInfo.State.CONNECTED) logger?.d(TAG, "Waiting for network...") }
-            .filter { it.state() == NetworkInfo.State.CONNECTED }
+    val networkSingle = applicationContext.networkConnectivityObservable()
+            .doOnNext { if (it.state() != CONNECTED) logger?.d(TAG, "Waiting for network...") }
+            .filter { it.state() == CONNECTED }
             .firstOrError()
 
     return if (checkConnectivity) {
@@ -103,9 +171,28 @@ fun Context.getNetworkAvailableSingle(
     }.ignore().doOnSuccess { logger?.d(TAG, "Network is back") }
 }
 
+fun HasContext.getNetworkAvailableSingle(
+        checkConnectivity: Boolean = true,
+        logger: Logger? = null
+): Single<Unit> = context().applicationContext.getNetworkAvailableSingle(
+        checkConnectivity,
+        logger
+)
+
+fun <T> T.getNetworkAvailableSingle(checkConnectivity: Boolean = true): Single<Unit>
+        where T : HasLogger, T : HasContext =
+        context().applicationContext.getNetworkAvailableSingle(
+                checkConnectivity,
+                logger()
+        )
+
+/**
+ * Network available Observable
+ */
+
 fun Context.observeNetworkAvailability(checkConnectivity: Boolean = true) =
-        ReactiveNetwork.observeNetworkConnectivity(this)
-                .map { it.state() == NetworkInfo.State.CONNECTED }
+        ReactiveNetwork.observeNetworkConnectivity(applicationContext)
+                .map { it.state() == CONNECTED }
                 .compose { upstream ->
                     if (checkConnectivity)
                         upstream
@@ -114,13 +201,20 @@ fun Context.observeNetworkAvailability(checkConnectivity: Boolean = true) =
                     else upstream
                 }
 
+fun HasContext.observeNetworkAvailability(checkConnectivity: Boolean = true) =
+        context().applicationContext.observeNetworkAvailability(checkConnectivity)
+
+/**
+ * Private
+ */
+
 private fun <T> Context.waitForNetworkAndRetry(attempt: Int,
                                                maxAttempts: Int,
                                                upstream: Observable<T>,
                                                skipCheckAtStart: Boolean,
                                                logger: Logger?) =
         upstream.onErrorResumeNext { error: Throwable ->
-            resumeNetworkOnError(
+            applicationContext.resumeNetworkOnError(
                     attempt + 1,
                     maxAttempts,
                     error,
@@ -130,11 +224,14 @@ private fun <T> Context.waitForNetworkAndRetry(attempt: Int,
             )
         }.let { composed ->
             if (skipCheckAtStart && attempt == 0) composed //useful for cache to work when offline
-            else getNetworkAvailableSingle().flatMapObservable { composed }
+            else
+                applicationContext
+                        .getNetworkAvailableSingle()
+                        .flatMapObservable { composed }
         }
 
 private fun Context.networkConnectivityObservable() =
-        ReactiveNetwork.observeNetworkConnectivity(this)
+        ReactiveNetwork.observeNetworkConnectivity(applicationContext)
 
 private fun isNetworkError(error: Throwable) =
         error is TimeoutException || error is IOException
@@ -151,7 +248,7 @@ private fun <T> Context.resumeNetworkOnError(attempt: Int,
     } else {
         if (isNetworkError(error)) {
             logger?.d(TAG, "Lost network connection, waiting for reconnection: attempt $attempt")
-            waitForNetworkAndRetry(
+            applicationContext.waitForNetworkAndRetry(
                     attempt + 1,
                     maxAttempts,
                     upstream,

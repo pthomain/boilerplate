@@ -3,6 +3,7 @@ package uk.co.glass_software.android.boilerplate.utils.delegates
 import android.annotation.SuppressLint
 import android.content.Context
 import android.content.Context.MODE_PRIVATE
+import uk.co.glass_software.android.boilerplate.HasContext
 import kotlin.properties.ReadWriteProperty
 import kotlin.reflect.KProperty
 
@@ -54,6 +55,7 @@ class Prefs private constructor(
 ) {
     companion object {
         infix fun Context.prefs(prefsFile: String) = Prefs(prefsFile, this)
+        infix fun HasContext.prefs(prefsFile: String) = Prefs(prefsFile, context().applicationContext)
     }
 
     val file by lazy { getPrefs(prefsFile, context)!! }

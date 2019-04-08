@@ -6,6 +6,7 @@ import androidx.lifecycle.Lifecycle.Event.ON_PAUSE
 import androidx.lifecycle.LifecycleObserver
 import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.OnLifecycleEvent
+import uk.co.glass_software.android.boilerplate.HasContext
 import uk.co.glass_software.android.boilerplate.utils.rx.RxAutoSubscriber
 
 interface MvpContract {
@@ -22,7 +23,7 @@ interface MvpContract {
     interface MvpView<
             V : MvpView<V, P, C>,
             P : Presenter<V, P, C>,
-            C : ViewComponent<V, P, C>> : LifecycleOwner {
+            C : ViewComponent<V, P, C>> : LifecycleOwner, HasContext {
 
         @Suppress("UNCHECKED_CAST")
         fun getMvpView(): V = this as V

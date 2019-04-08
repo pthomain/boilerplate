@@ -1,5 +1,6 @@
 package uk.co.glass_software.android.boilerplate.utils.io
 
+import uk.co.glass_software.android.boilerplate.HasLogger
 import uk.co.glass_software.android.boilerplate.utils.log.Logger
 import java.io.Closeable
 
@@ -16,6 +17,14 @@ inline fun <T : Closeable?, R> T.useAndLogError(
             throw e
         }
 
+inline fun <T : Closeable?, R> HasLogger.useAndLogError(
+        closeable: T,
+        block: (T) -> R
+) = closeable.useAndLogError(
+        block,
+        logger()
+)
+
 inline fun <T : Closeable?, R> T.useAndIgnoreError(
         block: (T) -> R,
         logger: Logger? = null
@@ -25,3 +34,11 @@ inline fun <T : Closeable?, R> T.useAndIgnoreError(
         } catch (e: Exception) {
             null
         }
+
+inline fun <T : Closeable?, R> HasLogger.useAndIgnoreError(
+        closeable: T,
+        block: (T) -> R
+) = closeable.useAndIgnoreError(
+        block,
+        logger()
+)

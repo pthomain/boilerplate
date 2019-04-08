@@ -4,13 +4,14 @@ import android.app.Activity
 import android.content.Context
 import android.os.Bundle
 import androidx.fragment.app.Fragment
+import uk.co.glass_software.android.boilerplate.HasContext
 import uk.co.glass_software.android.boilerplate.ui.mvp.base.MvpContract
 
 abstract class MvpFragment<
         V : MvpContract.MvpView<V, P, C>,
         P : MvpContract.Presenter<V, P, C>,
         C : MvpContract.ViewComponent<V, P, C>>
-    : Fragment(), MvpContract.MvpView<V, P, C> {
+    : Fragment(), MvpContract.MvpView<V, P, C>, HasContext {
 
     private lateinit var component: C
 
@@ -35,5 +36,7 @@ abstract class MvpFragment<
         super.onCreate(savedInstanceState)
         onCreateComponent(savedInstanceState)
     }
+
+    override fun context() = requireContext()
 
 }

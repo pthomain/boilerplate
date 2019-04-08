@@ -9,7 +9,7 @@ import io.reactivex.disposables.Disposable
 
 interface RxAutoSubscriber {
 
-    var subscriptions: CompositeDisposable
+    val subscriptions: CompositeDisposable
 
     fun Disposable.autoAdd(): Disposable = apply { subscriptions.add(this) }
 
