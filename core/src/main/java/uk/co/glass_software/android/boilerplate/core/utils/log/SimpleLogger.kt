@@ -5,7 +5,7 @@ import android.util.Log
 import uk.co.glass_software.android.boilerplate.core.utils.log.Logger.LogException
 
 class SimpleLogger(private val isDebug: Boolean,
-                   private val packageName: String,
+                   packageName: String,
                    private val printer: Printer,
                    private val listener: Listener? = null,
                    private var showDebugStackTrace: Boolean = false) : Logger {
@@ -43,28 +43,10 @@ class SimpleLogger(private val isDebug: Boolean,
                     if (canPrint(message))
                         Log.println(
                                 priority,
-                                decorate(tag, targetClassName),
-                                message
+                                tag,
+                                message.trim()
                         )
                 }
-
-                private fun decorate(tag: String?,
-                                     targetClassName: String) =
-                        trimTag(tag, targetClassName)?.let { "[$prefix:$it]" } ?: "[$prefix]"
-
-                private fun trimTag(tag: String?,
-                                    targetClassName: String) =
-                        tag?.replace(Regex("^$packageName\\."), "")
-                                ?.replace(Regex("\\.$targetClassName\$"), "")
-                                ?.let { trimTagToMaxLength(it) }
-
-                private fun trimTagToMaxLength(tag: String): String =
-                        if (tag.length + prefixLength > TAG_LENGTH_LIMIT) {
-                            if (tag.contains(".") && tag.indexOf(".") < tag.length)
-                                trimTagToMaxLength(tag.substring(tag.indexOf(".") + 1))
-                            else
-                                tag.substring(tag.length - TAG_LENGTH_LIMIT, tag.length)
-                        } else tag
             }
     )
 
@@ -195,14 +177,20 @@ class SimpleLogger(private val isDebug: Boolean,
                     message.substring(0, MESSAGE_LENGTH_LIMIT)
             )
 
-            logInternal(priority,
+            logInternal(
+                    priority,
                     tag,
                     targetClassName,
                     message.substring(MESSAGE_LENGTH_LIMIT),
                     throwable
             )
         } else {
-            printer.print(priority, tag, message, packageName)
+            printer.print(
+                    priority,
+                    tag,
+                    targetClassName,
+                    message
+            )
             throwable?.let { throwablePrinter.printStackTrace(tag, it) }
         }
     }
