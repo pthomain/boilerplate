@@ -31,51 +31,53 @@ fun <T> Observable<T>.schedule(subscribeOn: On = Io,
                                observeOn: On = Trampoline,
                                logger: Logger? = null) = compose {
     it.doOnError { logger?.e(TAG, it) }
-            .subscribeOn(subscribeOn.instance)
-            .observeOn(observeOn.instance)
+            .subscribeOn(subscribeOn())
+            .observeOn(observeOn())
 }!!
 
 fun <T> Single<T>.schedule(subscribeOn: On = Io,
                            observeOn: On = Trampoline,
                            logger: Logger? = null) = compose {
     it.doOnError { logger?.e(TAG, it) }
-            .subscribeOn(subscribeOn.instance)
-            .observeOn(observeOn.instance)
+            .subscribeOn(subscribeOn())
+            .observeOn(observeOn())
 }!!
 
 fun <T> Maybe<T>.schedule(subscribeOn: On = Io,
                           observeOn: On = Trampoline,
                           logger: Logger? = null) = compose {
     it.doOnError { logger?.e(TAG, it) }
-            .subscribeOn(subscribeOn.instance)
-            .observeOn(observeOn.instance)
+            .subscribeOn(subscribeOn())
+            .observeOn(observeOn())
 }!!
 
 fun <T> Flowable<T>.schedule(subscribeOn: On = Io,
                              observeOn: On = Trampoline,
                              logger: Logger? = null) = compose {
     it.doOnError { logger?.e(TAG, it) }
-            .subscribeOn(subscribeOn.instance)
-            .observeOn(observeOn.instance)
+            .subscribeOn(subscribeOn())
+            .observeOn(observeOn())
 }!!
 
 fun Completable.schedule(subscribeOn: On = Io,
                          observeOn: On = Trampoline,
                          logger: Logger? = null) = compose {
     it.doOnError { logger?.e(TAG, it) }
-            .subscribeOn(subscribeOn.instance)
-            .observeOn(observeOn.instance)
+            .subscribeOn(subscribeOn())
+            .observeOn(observeOn())
 }!!
 
-sealed class On(val instance: Scheduler) {
+sealed class On(provider: () -> Scheduler)
+    : () -> Scheduler by provider {
 
-    object Computation : On(Schedulers.computation())
-    object Io : On(Schedulers.io())
-    object Trampoline : On(Schedulers.trampoline())
-    object NewThread : On(Schedulers.newThread())
-    object Single : On(Schedulers.single())
-    object MainThread : On(AndroidSchedulers.mainThread())
+    object Computation : On(Schedulers::computation)
+    object Io : On(Schedulers::io)
+    object Trampoline : On(Schedulers::trampoline)
+    object NewThread : On(Schedulers::newThread)
+    object Single : On(Schedulers::single)
+    object MainThread : On(AndroidSchedulers::mainThread)
 
-    class From(executor: Executor) : On(Schedulers.from(executor))
+    class From(executor: Executor) : On({ Schedulers.from(executor) })
+    class Provided(provider: () -> Scheduler) : On(provider)
 
 }
