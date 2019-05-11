@@ -6,13 +6,12 @@ import uk.co.glass_software.android.boilerplate.core.utils.log.Logger.LogExcepti
 
 class SimpleLogger(private val isDebug: Boolean,
                    packageName: String,
-                   private val printer: Printer,
+                   private val printer: Printer = SimplePrinter(packageName),
                    private val listener: Listener? = null,
                    private var showDebugStackTrace: Boolean = false) : Logger {
 
     companion object {
         private const val MESSAGE_LENGTH_LIMIT = 4000
-        private const val TAG_LENGTH_LIMIT = 88
     }
 
     interface Listener {
@@ -23,32 +22,6 @@ class SimpleLogger(private val isDebug: Boolean,
     }
 
     private val throwablePrinter = ThrowablePrinter(printer, packageName)
-
-    constructor(isDebug: Boolean,
-                prefix: String,
-                packageName: String) : this(
-            isDebug,
-            packageName,
-            object : Printer {
-
-                private val prefixLength = prefix.length + 1
-
-                override fun canPrint(className: String) =
-                        !className.contains(SimpleLogger::class.java.`package`!!.name)
-
-                override fun print(priority: Int,
-                                   tag: String?,
-                                   targetClassName: String,
-                                   message: String) {
-                    if (canPrint(message))
-                        Log.println(
-                                priority,
-                                tag,
-                                message.trim()
-                        )
-                }
-            }
-    )
 
     override fun d(tagOrCaller: Any,
                    message: String) {
