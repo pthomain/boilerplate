@@ -13,7 +13,7 @@ internal class SimplePrinter(
                        tag: String?,
                        targetClassName: String,
                        message: String) {
-        if (canPrint(message))
+        if (tag?.let { canPrint(it) } != false)
             Log.println(
                     priority,
                     cleanUpTag(tag),
@@ -22,23 +22,21 @@ internal class SimplePrinter(
     }
 
     private fun cleanUpTag(tag: String?) =
-            if (tag?.trim()?.startsWith(packageName) == true) {
-                tag.replace("$packageName.", "").let {
-                    val start = it.length - MAX_TAG_LENGTH
+            tag?.replace("$packageName.", "")?.let {
+                val start = it.length - MAX_TAG_LENGTH
 
-                    val truncated = if (start > 0) {
-                        it.substring(start, it.length).let {
-                            if (it.contains(".")) {
-                                it.substring(it.indexOf("."))
-                            } else it
-                        }
-                    } else it
+                val truncated = if (start > 0) {
+                    it.substring(start, it.length).let {
+                        if (it.contains(".")) {
+                            it.substring(it.indexOf(".") + 1)
+                        } else it
+                    }
+                } else it
 
-                    if (truncated.contains(".")) {
-                        truncated.substring(0, truncated.lastIndexOf("."))
-                    } else truncated
-                }
-            } else tag
+                if (truncated.contains(".")) {
+                    truncated.substring(0, truncated.lastIndexOf("."))
+                } else truncated
+            }
 }
 
 private const val MAX_TAG_LENGTH = 88
