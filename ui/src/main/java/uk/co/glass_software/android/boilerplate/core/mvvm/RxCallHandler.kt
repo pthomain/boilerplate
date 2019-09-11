@@ -27,4 +27,6 @@ interface RxCallHandler {
             onTerminate: () -> Unit = {}
     ): Disposable
 
+    fun observeCallLoading(): Observable<Boolean>
+
 }
