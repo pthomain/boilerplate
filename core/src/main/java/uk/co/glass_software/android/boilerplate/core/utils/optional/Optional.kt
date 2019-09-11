@@ -1,4 +1,4 @@
-package uk.co.glass_software.android.boilerplate.core.utils.lambda
+package uk.co.glass_software.android.boilerplate.core.utils.optional
 
 import java.util.*
 

@@ -1,4 +1,4 @@
-package uk.co.glass_software.android.boilerplate.core.utils.resources
+package uk.co.glass_software.android.boilerplate.core.utils
 
 import android.app.Activity
 import android.app.Fragment

@@ -22,7 +22,7 @@
  * or visit www.oracle.com if you need additional information or have any
  * questions.
  */
-package uk.co.glass_software.android.boilerplate.core.utils.lambda
+package uk.co.glass_software.android.boilerplate.core.utils.optional
 
 import java.util.*
 

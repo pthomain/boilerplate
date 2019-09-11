@@ -1,4 +1,4 @@
-package uk.co.glass_software.android.boilerplate.core.utils.lambda
+package uk.co.glass_software.android.boilerplate.core.utils.optional
 
 import io.reactivex.Maybe
 import io.reactivex.Observable
@@ -46,4 +46,8 @@ private fun <T, RX> decapsulateOptional(optional: Optional<T>,
                                         absentRxType: () -> RX): RX {
     val value = optional.get() ?: defaultValueSupplier?.let { optional.orElseGet(it) }
     return value?.let { presentRxType(it) } ?: absentRxType()
+}
+
+inline fun <reified T> Optional<T>.singleOrError() = Single.defer {
+    Single.just(orElseThrow { NoSuchElementException("No value found") })
 }
