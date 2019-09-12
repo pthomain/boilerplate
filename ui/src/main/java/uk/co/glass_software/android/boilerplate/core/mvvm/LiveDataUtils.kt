@@ -22,7 +22,7 @@ fun <R> LiveData<SuccessFailure<R>>.observeSuccessFailureWithReference(owner: Li
         object : Observer<SuccessFailure<R>> {
             override fun onChanged(result: SuccessFailure<R>?) {
                 when (result) {
-                    is Result<*> -> onSuccess(result.value as R, this)
+                    is ResultOrThrowable.Result<*> -> onSuccess(result.value as R, this)
                     is ResultOrThrowable.Throwable -> onError(result.value, this)
                 }
             }
