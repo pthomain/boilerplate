@@ -68,4 +68,5 @@ artifacts {
 dependencies {
     implementation project(':core')
     implementation appDependencies.appcompatV7
+    implementation appDependencies.recyclerView
 }

@@ -73,5 +73,7 @@ dependencies {
     api appDependencies.rxKotlin
     api appDependencies.rxAndroid
     api appDependencies.reactivenetwork
+    api appDependencies.paging
+    api appDependencies.pagingRx
 
 }
