@@ -17,8 +17,7 @@ abstract class BaseFragment : Fragment() {
 
     private val creationSubject = PublishSubject.create<Unit>()
 
-    protected lateinit var disposables: CompositeDisposable
-        private set
+    protected val disposables = CompositeDisposable()
 
     final override fun onCreateView(inflater: LayoutInflater,
                                     container: ViewGroup?,
@@ -32,16 +31,15 @@ abstract class BaseFragment : Fragment() {
     abstract fun onLayoutInflated(layout: View)
 
     @CallSuper
-    override fun onPause() {
-        super.onPause()
-        disposables.clear()
+    override fun onResume() {
+        super.onResume()
+        creationSubject.onNext(Unit)
     }
 
     @CallSuper
-    override fun onResume() {
-        super.onResume()
-        disposables = CompositeDisposable()
-        creationSubject.onNext(Unit)
+    override fun onPause() {
+        super.onPause()
+        disposables.clear()
     }
 
     fun observeFragmentCreated() = creationSubject.map { it }!!
