@@ -18,13 +18,21 @@ class SimpleSuccessFailureComposerFactory : SuccessFailureComposerFactory {
 
     override fun <R> newComposer(onSubscribe: () -> Unit,
                                  onTerminate: () -> Unit) =
-            SuccessFailureTransformer<R>()
+            SuccessFailureTransformer<R>(
+                    onSubscribe,
+                    onTerminate
+            )
 
 }
 
-class SuccessFailureTransformer<R> : RxTransformer<R, SuccessFailure<R>>() {
+class SuccessFailureTransformer<R>(
+        private val onSubscribe: () -> Unit,
+        private val onTerminate: () -> Unit
+) : RxTransformer<R, SuccessFailure<R>>() {
 
     override fun apply(upstream: Observable<R>) =
             upstream.mapResultOrError()
+                    .doOnSubscribe { onSubscribe() }
+                    .doFinally { onTerminate() }
 
 }
