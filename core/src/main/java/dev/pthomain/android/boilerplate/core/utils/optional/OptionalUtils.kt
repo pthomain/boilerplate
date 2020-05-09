@@ -5,13 +5,13 @@ import io.reactivex.Observable
 import io.reactivex.Single
 
 fun <T> Observable<Optional<T>>.mapOptional(defaultValue: T? = null): Observable<T> =
-        mapOptional(defaultValue?.let { { it } })
+        mapOptional(defaultValue?.let { { it } } as (() -> T)?)
 
 fun <T> Single<Optional<T>>.mapOptional(defaultValue: T? = null): Single<T> =
-        mapOptional(defaultValue?.let { { it } })
+        mapOptional(defaultValue?.let { { it } } as (() -> T)?)
 
 fun <T> Maybe<Optional<T>>.mapOptional(defaultValue: T? = null): Maybe<T> =
-        mapOptional(defaultValue?.let { { it } })
+        mapOptional(defaultValue?.let { { it } } as (() -> T)?)
 
 fun <T> Observable<Optional<T>>.mapOptional(defaultValueSupplier: (() -> T)? = null): Observable<T> = flatMap {
     decapsulateOptional<T, Observable<T>>(
